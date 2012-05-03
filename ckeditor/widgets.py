@@ -36,7 +36,7 @@ class CKEditorWidget(forms.Textarea):
     """
     class Media:
        js = (
-                reverse_lazy("ckeditor_static", args=("ckeditor.js",)),
+                settings.STANDARD_ADMIN_MEDIA_PREFIX + "ckeditor/ckeditor.js" ,
         )
        
     def __init__(self, config_name='default', *args, **kwargs):
