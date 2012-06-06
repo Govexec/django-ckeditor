@@ -136,7 +136,7 @@ def upload(request):
     
     
     # scale image based on MAX_WIDTH
-    if getattr(settings, "CKEDITOR_MAX_WIDTH"):
+    if hasattr(settings, "CKEDITOR_MAX_WIDTH"):
         rescale(upload_filename, width=settings.CKEDITOR_MAX_WIDTH)
     
 
