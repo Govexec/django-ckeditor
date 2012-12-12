@@ -17,8 +17,8 @@ ev.editor.dataProcessor.htmlFilter.addRules(
         elements:
         {
             $: function (element) {
-                // Output dimensions of images as width and height
                 if (element.name == 'img') {
+                    // Output dimensions of images as width and height
                     var style = element.attributes.style;
 
                     if (style) {
@@ -38,6 +38,35 @@ ev.editor.dataProcessor.htmlFilter.addRules(
                         if (height) {
                             element.attributes.style = element.attributes.style.replace(/(?:^|\s)height\s*:\s*(\d+)px;?/i, '');
                             element.attributes.height = height;
+                        }
+                    }
+                } else if (element.name == 'a') {
+
+                    // Remove OREFs from links
+                    var href = element.attributes.href;
+
+                    if (href) {
+                        var pattern = /(&amp;|&|\?)(oref=[a-z0-9\-]*)(&amp;|&|$|#)/i;
+                        var match = pattern.exec(href);
+
+                        if (match != null) {
+                            var beforeOref = match[1];
+                            var oref = match[2];
+                            var afterOref = match[3];
+
+                            if ((beforeOref == "?") && ((afterOref != "&") && (afterOref != "&amp;"))) {
+                                // remove ?oref=whatever
+                                var replace = beforeOref + oref;
+                                element.attributes["data-cke-saved-href"] = href.replace(replace, "");
+                            } else if ((afterOref == "&") || (afterOref == "&amp;")) {
+                                // remove oref=whatever&
+                                var replace = oref + afterOref;
+                                element.attributes["data-cke-saved-href"] = href.replace(replace, "");
+                            } else if ((beforeOref == "&") || (beforeOref == "&amp;")) {
+                                // remove &oref=whatever
+                                var replace = beforeOref + oref;
+                                element.attributes["data-cke-saved-href"] = href.replace(replace, "");
+                            }
                         }
                     }
                 }
