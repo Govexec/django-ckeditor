@@ -67,50 +67,14 @@ Copyright (c) 2013 Llewellyn Hinkes-Jones borrowed heavily from pastefromgoogle 
 			{
 				var data = evt.data,
 					googleHtml;
-				console.log("On paste");
+
 				// Google Doc format sniffing.
 				if ( ( googleHtml = data[ 'html' ] )
 					 && ( forceFromGoogle || ( /((strong|b) id="internal-source-marker(.*))/ ).test( googleHtml ) ) )
 				{
-					console.log("Caught the format");
-					var isLazyLoad = this.loadFilterRules( function()
-						{
-							// Event continuation with the original data.
-							if ( isLazyLoad )
-								editor.fire( 'paste', data );
-							else if ( !editor.config.pasteFromGooglePromptCleanup
-							  || ( forceFromGoogle || confirm( 'The text you want to paste seems to be copied from Google Docs. Do you want to clean it before pasting?' ) ) )
-							 {
-							 	window.test = googleHtml;
-								data[ 'html' ] = googleHtml.replace(/<(strong|b) id="internal-source-marker(.*?);">(.*)/gi, "$3"); 
-							}
-						});
-
-					// The cleanup rules are to be loaded, we should just cancel
-					// this event.
-					isLazyLoad && evt.cancel();
+					data[ 'html' ] = googleHtml.replace(/<(strong|b) id="internal-source-marker(.*?);">(.*)/gi, "$3"); 
 				}
 			}, this );
-		},
-
-		loadFilterRules : function( callback )
-		{
-
-			var isLoaded = CKEDITOR.cleanGoogle;
-
-			if ( isLoaded )
-				callback();
-			else
-			{
-				var filterFilePath = CKEDITOR.getUrl(
-						CKEDITOR.config.pasteFromGoogleCleanupFile
-						|| ( this.path + 'filter/default.js' ) );
-
-				// Load with busy indicator.
-				CKEDITOR.scriptLoader.load( filterFilePath, callback, null, true );
-			}
-
-			return !isLoaded;
 		},
 
 		requires : [ 'clipboard' ]
