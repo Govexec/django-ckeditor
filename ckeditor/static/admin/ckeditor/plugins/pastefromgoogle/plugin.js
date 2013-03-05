@@ -83,7 +83,7 @@ Copyright (c) 2013 Llewellyn Hinkes-Jones borrowed heavily from pastefromgoogle 
 						result = result.replace(/font-(family|size)\:(.*?)\;/gi, "");
 					}
 					
-					result = result.replace(/<br \/>"/gi, "</p><p>");
+					result = result.replace(/<br \/>((\s|\t|\r|\n)*)<br \/>/gi, "</p><p>");
 					
 					result = result.replace(/style="(\s*)"/gi, "");
 					
