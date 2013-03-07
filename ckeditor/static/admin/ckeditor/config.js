@@ -1,5 +1,5 @@
 ﻿/*
-Copyright (c) 2003-2012, CKSource - Frederico Knabben. All rights reserved.
+Copyright (c) 2003-2011, CKSource - Frederico Knabben. All rights reserved.
 For licensing, see LICENSE.html or http://ckeditor.com/license
 */
 
@@ -8,11 +8,7 @@ CKEDITOR.editorConfig = function( config )
 	// Define changes to default configuration here. For example:
 	// config.language = 'fr';
 	// config.uiColor = '#AADC6E';
-	// config.enterMode = CKEDITOR.ENTER_BR;
-	// config.autoParagraph = false;
-	// config.fillEmptyBlocks = false;
 };
-
 
 CKEDITOR.on('instanceReady', function (ev) {
 // Ends self closing tags the HTML4 way, like <br>.

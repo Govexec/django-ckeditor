@@ -1,5 +1,5 @@
 ﻿/*
-Copyright (c) 2003-2012, CKSource - Frederico Knabben. All rights reserved.
+Copyright (c) 2003-2011, CKSource - Frederico Knabben. All rights reserved.
 For licensing, see LICENSE.html or http://ckeditor.com/license
 */
 
@@ -175,11 +175,10 @@ CKEDITOR.plugins.add( 'menu',
 
 			onHide : function()
 			{
-				// Unlock the selection upon first panel closing.
-				if ( CKEDITOR.env.ie && !this.parent )
+				if ( CKEDITOR.env.ie )
 				{
 					var selection = this.editor.getSelection();
-					selection && selection.unlock( true );
+					selection && selection.unlock();
 				}
 
 				this.onHide && this.onHide();
