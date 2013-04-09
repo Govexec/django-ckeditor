@@ -34,7 +34,7 @@ class CKEditorWidget(forms.Textarea):
 	"""
 	class Media:
 		js = (
-				settings.STATIC_URL + "admin/ckeditor/ckeditor.js" ,
+				settings.NON_CDN_STATIC_URL + "admin/ckeditor/ckeditor.js" ,
 		)
 	   
 	def __init__(self, config_name='default', *args, **kwargs):
