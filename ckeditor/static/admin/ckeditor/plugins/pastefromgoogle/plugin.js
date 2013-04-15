@@ -74,25 +74,34 @@ Copyright (c) 2013 Llewellyn Hinkes-Jones borrowed heavily from pastefromgoogle 
 				{
 					result = googleHtml.replace(/<(strong|b) id="internal-source-marker(.*?);">(.*)/gi, "$3");
 					
+					result = result.replace(/<p>((\s|\t|\r|\n)*)<\/p>/i, "");
+					
+					result = result.replace(/color\: rgb\(17, 85, 204\)\;/gi, "");
 					result = result.replace(/vertical-align\: baseline\;/gi, "");
 					result = result.replace(/background-color\: transparent\;/gi, "");
 					result = result.replace(/white-space\: pre-wrap\;/gi, "");
 					result = result.replace(/line-height\:(.*?)\;/gi, "");
 					result = result.replace(/margin(.*?)\;/gi, "");
+					result = result.replace(/text-decoration(.*?)\;/gi, "");
 					
 					if (!editor.config.keepCustomFormattingFromPaste){
 						// strip out all tags except basic formatting
 						result = result.replace(/font-(family|size)\:(.*?)\;/gi, "");
 					}
-					
-					result = result.replace(/<\/p>((\s|\t|\r|\n)*)<br \/>((\s|\t|\r|\n)*)<p dir="ltr">/gi, "</p><p>");
-					
+
 					result = result.replace(/<br \/>((\s|\t|\r|\n)*)<br \/>/gi, "</p><p>");
+					
 					
 					result = result.replace(/style="(\s*)"/gi, "");
 					
 					result = result.replace(/<span(\s*)>/gi, "");
 					
+					result = result.replace(/<span style="((\s|\t|\r|\n)*)font-style: italic;((\s|\t|\r|\n)*)">(.*?)<\/span>/gi, "<em>$5<\/em>");
+					
+					result = result.replace(/<span style="((\s|\t|\r|\n)*)font-weight: bold;((\s|\t|\r|\n)*)">(.*?)<\/span>/gi, "<b>$5<\/b>");
+					
+					result = result.replace(/<\/p>((\s|\t|\r|\n)*)<br><\/span>((\s|\t|\r|\n)*)/gi, "</p>");
+										
 					data[ 'html' ] = result;
 				}
 			}, this );
