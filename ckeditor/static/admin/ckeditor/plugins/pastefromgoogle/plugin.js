@@ -77,6 +77,8 @@ Copyright (c) 2013 Llewellyn Hinkes-Jones borrowed heavily from pastefromgoogle 
 					result = result.replace(/vertical-align\: baseline\;/gi, "");
 					result = result.replace(/background-color\: transparent\;/gi, "");
 					result = result.replace(/white-space\: pre-wrap\;/gi, "");
+					result = result.replace(/line-height\: (.*?)\;/gi, "");
+					result = result.replace(/margin(.*?)\;/gi, "");
 					
 					if (!editor.config.keepCustomFormattingFromPaste){
 						// strip out all tags except basic formatting
