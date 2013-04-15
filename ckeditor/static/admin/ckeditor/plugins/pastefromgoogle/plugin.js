@@ -77,13 +77,15 @@ Copyright (c) 2013 Llewellyn Hinkes-Jones borrowed heavily from pastefromgoogle 
 					result = result.replace(/vertical-align\: baseline\;/gi, "");
 					result = result.replace(/background-color\: transparent\;/gi, "");
 					result = result.replace(/white-space\: pre-wrap\;/gi, "");
-					result = result.replace(/line-height\: (.*?)\;/gi, "");
+					result = result.replace(/line-height\:(.*?)\;/gi, "");
 					result = result.replace(/margin(.*?)\;/gi, "");
 					
 					if (!editor.config.keepCustomFormattingFromPaste){
 						// strip out all tags except basic formatting
 						result = result.replace(/font-(family|size)\:(.*?)\;/gi, "");
 					}
+					
+					result = result.replace(/<\/p>((\s|\t|\r|\n)*)<br \/>((\s|\t|\r|\n)*)<p dir="ltr">/gi, "</p><p>");
 					
 					result = result.replace(/<br \/>((\s|\t|\r|\n)*)<br \/>/gi, "</p><p>");
 					
