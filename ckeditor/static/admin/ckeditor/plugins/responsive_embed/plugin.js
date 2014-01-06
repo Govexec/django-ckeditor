@@ -230,7 +230,8 @@
 			editor.ui.addButton('Embed',
             {
                 label: 'Embed',
-                command: DIALOG_EMBED_CMD
+                command: DIALOG_EMBED_CMD,
+                icon: this.path + 'icons/embed_icon.png'
             });
             CKEDITOR.dialog.add(DIALOG_EMBED_CMD, responsive_embed_dialog);
 
