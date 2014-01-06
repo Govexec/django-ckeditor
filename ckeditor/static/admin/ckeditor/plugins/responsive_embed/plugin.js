@@ -246,6 +246,7 @@
                     label: 'Edit Embed',
                     command: DIALOG_EMBED_CMD,
                     group: MENU_GROUP,
+                    icon: this.path + 'icons/embed_icon.png'
                 });
 
                 editor.contextMenu.addListener(function(element)
