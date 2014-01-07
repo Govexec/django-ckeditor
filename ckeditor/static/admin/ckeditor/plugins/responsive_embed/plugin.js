@@ -43,8 +43,8 @@
                             'default': ResponsiveEmbed.YOUTUBE,
                             setup: function(element)
                             {
-                                var child;
-                                if(element && child = element.getChild(0))
+                                var child = element.getChild(0);
+                                if(child)
                                 {
                                     var items = [ResponsiveEmbed.YOUTUBE];//, 'embed-brightcove'];
                                     for(var i = 0; i < items.length; ++i)
@@ -71,6 +71,43 @@
                             },
                         },
                         {
+                            id: 'size',
+                            type: 'select',
+                            required: true,
+                            validate: CKEDITOR.dialog.validate.notEmpty("Size cannot be empty"),
+                            label: 'Select size of content',
+                            labelLayout: 'horizontal',
+                            items: [
+                                ['Normal', 'normal'],
+                                ['Big', 'big'],
+                                ['Huge', 'huge']
+                            ],
+                            'default': 'big',
+                            setup: function(element)
+                            {
+                                var items = ['normal', 'big', 'huge'];
+                                for(var i = 0; i < items.length; ++i)
+                                {
+                                    var cls = items[i];
+                                    if(element.hasClass(cls))
+                                    {
+                                        this.setValue(cls);
+                                        return;
+                                    }
+                                }
+                            },
+                            commit: function(element)
+                            {
+                                var items = ['normal', 'big', 'huge'];
+                                for(var i = 0; i < items.length; ++i)
+                                {
+                                    var cls = items[i];
+                                    element.removeClass(cls);
+                                }
+                                element.addClass(this.getValue());
+                            },
+                        },
+                        {
                             id: 'url',
                             type: 'text',
                             required: true,
@@ -78,25 +115,9 @@
                             label: 'URL',
                             labelLayout: 'horizontal',
                             setup: function(element)
-                            {// UGLY!!!
-                                if(!element)
-                                {
-                                    return;
-                                }
-                                var wrapper = element.getChild(0);
-                                if(wrapper)
-                                {
-                                    var embed = wrapper.getChild(0);
-                                    if(embed)
-                                    {
-                                        var data = embed.data('cke-realelement');
-                                        if(data)
-                                        {
-                                            embed = CKEDITOR.dom.element.createFromHtml(decodeURIComponent(data));
-                                        }
-                                        this.setValue(embed.data('embed-src'));
-                                    }
-                                }
+                            {
+                                var embed = element.getChild(0).getChild(0);
+                                this.setValue(embed.data('embed-src'));
                             },
                             commit: function(element)
                             {
@@ -117,46 +138,6 @@
                                 }
                             },
                         },
-                        {
-                            id: 'size',
-                            type: 'select',
-                            required: true,
-                            validate: CKEDITOR.dialog.validate.notEmpty("Size cannot be empty"),
-                            label: 'Select size of content',
-                            labelLayout: 'horizontal',
-                            items: [
-                                ['Normal', 'normal'],
-                                ['Big', 'big'],
-                                ['Huge', 'huge']
-                            ],
-                            'default': 'big',
-                            setup: function(element)
-                            {
-                                if(element)
-                                {
-                                    var items = ['normal', 'big', 'huge'];
-                                    for(var i = 0; i < items.length; ++i)
-                                    {
-                                        var cls = items[i];
-                                        if(element.hasClass(cls))
-                                        {
-                                            this.setValue(cls);
-                                            return;
-                                        }
-                                    }
-                                }
-                            },
-                            commit: function(element)
-                            {
-                                var items = ['normal', 'big', 'huge'];
-                                for(var i = 0; i < items.length; ++i)
-                                {
-                                    var cls = items[i];
-                                    element.removeClass(cls);
-                                }
-                                element.addClass(this.getValue());
-                            },
-                        },
                     ]
                 }
             ],
@@ -168,7 +149,7 @@
 
 				var fake_image = this.getSelectedElement();
 
-				if(fake_image && fake_image.data( 'cke-real-element' ))
+				if(fake_image && fake_image.hasClass(CKE_RESPONSIVE_EMBED))
                 {
                     var real_node = editor.restoreRealElement(fake_image);
                     if(real_node.hasClass(EMBED_WRAPPER_CLS))
@@ -241,15 +222,15 @@
             CKEDITOR.dialog.add(DIALOG_EMBED_CMD, responsive_embed_dialog);
 
             editor.addCss(
-				'img.' + CKE_RESPONSIVE_EMBED +
-				'{' +
-					'background-image: url(' + CKEDITOR.getUrl(this.path + 'icons/placeholder.png') + ');' +
-					'background-position: center center;' +
-					'background-repeat: no-repeat;' +
-					'border: 1px solid #a9a9a9;' +
-					'width: 80px;' +
-					'height: 80px;' +
-				'}'
+                'img.' + CKE_RESPONSIVE_EMBED
+                 + '{'
+                     + 'background-image: url(' + CKEDITOR.getUrl(this.path + 'icons/placeholder.png') + ');'
+                     + 'background-position: center center;'
+                     + 'background-repeat: no-repeat;'
+                     + 'border: 1px solid #a9a9a9;'
+                     + 'width: 80px;'
+                     + 'height: 80px;'
+                 + '}'
 			);
 			editor.on('doubleclick', function(evt)
             {
