@@ -2,8 +2,6 @@
 
     var EMBED_WRAPPER_CLS = 'embed-wrapper';
 
-	function forceHtmlMode(evt) { evt.data.mode = 'html'; }
-
     var ancestor_with_class = function(element, classname, include_element)
     {
         var closer_first = true;
@@ -38,35 +36,31 @@
                             label: 'Select source of content',
                             labelLayout: 'horizontal',
                             items: [
-                                ['YouTube', 'embed-youtube'],
-                                //['BrightCove', 'embed-brightcove'],
+                                ['YouTube', ResponsiveEmbed.YOUTUBE],
+//                                ['BrightCove', ResponsiveEmbed.BRIGHTCOVE],
                             ],
-                            'default': 'embed-youtube',
+                            'default': ResponsiveEmbed.YOUTUBE,
                             setup: function(element)
                             {
-                                if(!element)
+                                var child;
+                                if(element && child = element.getChild(0))
                                 {
-                                    return;
-                                }
-                                var child = element.getChild(0);
-                                if(!child)
-                                {
-                                    return;
-                                }
-                                var items = ['embed-youtube'];//, 'embed-brightcove'];
-                                for(var i = 0; i < items.length; ++i)
-                                {
-                                    var cls = items[i];
-                                    if(child.hasClass(cls))
+                                    var items = [ResponsiveEmbed.YOUTUBE];//, 'embed-brightcove'];
+                                    for(var i = 0; i < items.length; ++i)
                                     {
-                                        this.setValue(cls);
+                                        var cls = items[i];
+                                        if(child.hasClass(cls))
+                                        {
+                                            this.setValue(cls);
+                                            break;
+                                        }
                                     }
                                 }
                             },
                             commit: function(element)
                             {
                                 var child = element.getChild(0);
-                                var items = ['embed-youtube'];//, 'embed-brightcove'];
+                                var items = [ResponsiveEmbed.YOUTUBE];//, 'embed-brightcove'];
                                 for(var i = 0; i < items.length; ++i)
                                 {
                                     var cls = items[i];
@@ -97,29 +91,27 @@
                                         var data = embed.data('cke-realelement');
                                         if(data)
                                         {
-                                            console.log(data);
                                             embed = CKEDITOR.dom.element.createFromHtml(decodeURIComponent(data));
-                                            console.log('fart');
                                         }
-                                        this.setValue(embed.data('src'));
+                                        this.setValue(embed.data('embed-src'));
                                     }
                                 }
                             },
                             commit: function(element)
                             {
-                                var embed = element.getChild(0).getChild(0);
-                                var data = embed.data('cke-realelement');
-                                if(data)
+                                var embed_container = element.getChild(0);
+                                var embed = embed_container.getChild(0);
+                                if(embed_container.hasClass(ResponsiveEmbed.YOUTUBE))
                                 {
-                                    var real_ele = CKEDITOR.dom.element.createFromHtml(decodeURIComponent(data));
-                                    real_ele.data('src', this.getValue());
-                                    real_ele.setAttribute('src', this.getValue());
+                                    var r_embed = ResponsiveEmbed.youtubeEmbed(this.getValue());
+                                    var source = r_embed.source;
 
-                                    embed.data('cke-realelement', encodeURIComponent(real_ele.getOuterHtml()));
+                                    embed.data('embed-src', source);
+                                    embed.setAttribute('src', source);
                                 }
                                 else
                                 {
-                                    embed.data('src', this.getValue());
+                                    embed.data('embed-src', this.getValue());
                                     embed.setAttribute('src', this.getValue());
                                 }
                             },
@@ -169,52 +161,63 @@
             ],
             onShow: function()
             {
-                var sel = editor.getSelection();
-                var element = sel.getStartElement();
-                if(element)
+				// Clear previously saved elements.
+				this.fake_image = null;
+                this.real_node = null;
+
+				var fake_image = this.getSelectedElement();
+
+				if(fake_image && fake_image.data( 'cke-real-element' ))
                 {
-                    var include_element = true;
-                    element = ancestor_with_class(element, EMBED_WRAPPER_CLS, include_element);
-                }
-                if(element && element.hasClass(EMBED_WRAPPER_CLS) && !element.data('cke-realelement'))
-                {
-                    this.new_element = false;
-                    this.setupContent(element);
-                    this.element = element;
-                }
-                else
-                {
-                    this.new_element = true;
+                    var real_node = editor.restoreRealElement(fake_image);
+                    if(real_node.hasClass(EMBED_WRAPPER_CLS))
+                    {
+                        this.fake_image = fake_image;
+                        this.real_node = real_node;
+                        this.setupContent(real_node);
+                    }
                 }
             },
             onOk: function()
             {
-                var dialog = this;
-                var source = dialog.getValueOf('main', 'source');
-                var url = dialog.getValueOf('main', 'url');
-                var size = dialog.getValueOf('main', 'size');
+                var real_node;
+                if(!this.fake_image)
+                {
+                    var dialog = this;
+                    var source = dialog.getValueOf('main', 'source');
+                    var url = dialog.getValueOf('main', 'url');
+                    var size = dialog.getValueOf('main', 'size');
 
-                switch(source){
-                case 'embed-youtube':
-                    if(!this.new_element)
-                    {
-                        this.commitContent(this.element);
-                    }
-                    else
-                    {
+                    switch(source){
+                    case ResponsiveEmbed.YOUTUBE:
                         var embed_code = ResponsiveEmbed.youtubeEmbed(url).generate().get_code();
-                        var wrapped_code = (
-                            '<div class="' + EMBED_WRAPPER_CLS + ' ' + size + '">'
-                            + embed_code
-                            + '</div>'
-                        );
-                        var ele = CKEDITOR.dom.element.createFromHtml(wrapped_code);
-                        editor.insertElement(ele);
-                        this.element = ele;
+                        break;
+                    default:
+                        var embed_code = ResponsiveEmbed.genericEmbed(url).generate().get_code();
+                        break;
                     }
-                    break;
-                default:
-                    break;
+                    var wrapped_code = (
+                        '<div class="' + EMBED_WRAPPER_CLS + ' ' + size + '">'
+                        + embed_code
+                        + '</div>'
+                    );
+                    real_node = CKEDITOR.dom.element.createFromHtml(wrapped_code);
+                }
+                else
+                {
+                    real_node = this.real_node;
+                }
+                this.commitContent(real_node);
+
+				var new_fake_image = editor.createFakeElement(real_node, 'cke_embed', 'div', true);
+				if(this.fake_image)
+				{
+					new_fake_image.replace(this.fake_image);
+					editor.getSelection().selectElement(new_fake_image);
+				}
+				else
+                {
+					editor.insertElement(new_fake_image);
                 }
             },
         };
@@ -222,7 +225,8 @@
 
 	CKEDITOR.plugins.add('responsive_embed',
 	{
-		init : function(editor)
+        requires: ['dialog', 'fakeobjects'],
+		init: function(editor)
 		{
             var DIALOG_EMBED_CMD = 'embed_dialog';
 
@@ -234,6 +238,26 @@
                 icon: this.path + 'icons/embed_icon.png'
             });
             CKEDITOR.dialog.add(DIALOG_EMBED_CMD, responsive_embed_dialog);
+
+            editor.addCss(
+				'img.cke_embed' +
+				'{' +
+					'background-image: url(' + CKEDITOR.getUrl(this.path + 'icons/placeholder.png') + ');' +
+					'background-position: center center;' +
+					'background-repeat: no-repeat;' +
+					'border: 1px solid #a9a9a9;' +
+					'width: 80px;' +
+					'height: 80px;' +
+				'}'
+			);
+			editor.on('doubleclick', function(evt)
+            {
+                var element = evt.data.element;
+                if(element.is('img') && element.hasClass(EMBED_WRAPPER_CLS))
+                {
+                    evt.data.dialog = DIALOG_EMBED_CMD;
+                }
+            });
 
             if(editor.contextMenu)
             {
@@ -253,11 +277,8 @@
                 {
                     if(element)
                     {
-                        include_element = true;
-                        var ancestor = ancestor_with_class(element, EMBED_WRAPPER_CLS, include_element);
-                        if(ancestor && !ancestor.isReadOnly() && !ancestor.data('cke-realelement'))
-                        {//if data-cke-realelement then it is a fake element
-                         //with the real element stored in that attribute
+                        if(element.is('img') && element.hasClass(EMBED_WRAPPER_CLS))
+                        {
                             response = {};
                             response[MENU_ITEM] = CKEDITOR.TRISTATE_OFF;
                             return response;
@@ -265,7 +286,29 @@
                     }
                 });
             }
-		}
+		},
+        afterInit: function(editor)
+        {
+			var dataProcessor = editor.dataProcessor;
+			var	dataFilter = dataProcessor && dataProcessor.dataFilter;
+
+			if(dataFilter)
+			{
+				dataFilter.addRules(
+				{
+					elements:
+					{
+						div: function(element)
+						{
+                            if(element.attributes.class.indexOf(EMBED_WRAPPER_CLS) > -1)
+                            {
+                                return editor.createFakeParserElement(element, 'cke_embed', 'div', true);
+                            }
+						}
+					}
+				});
+			}
+        }
 	});
 
 })();
