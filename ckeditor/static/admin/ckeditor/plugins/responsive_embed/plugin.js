@@ -259,7 +259,7 @@
                 {
                     if(element)
                     {
-                        if(element.is('img') && element.hasClass(EMBED_WRAPPER_CLS))
+                        if(element.is('img') && element.hasClass(CKE_RESPONSIVE_EMBED))
                         {
                             response = {};
                             response[MENU_ITEM] = CKEDITOR.TRISTATE_OFF;
