@@ -1,6 +1,7 @@
 (function() {
 
     var EMBED_WRAPPER_CLS = 'embed-wrapper';
+    var CKE_RESPONSIVE_EMBED = 'cke-embed';
 
     var ancestor_with_class = function(element, classname, include_element)
     {
@@ -209,7 +210,7 @@
                 }
                 this.commitContent(real_node);
 
-				var new_fake_image = editor.createFakeElement(real_node, 'cke_embed', 'div', true);
+				var new_fake_image = editor.createFakeElement(real_node, CKE_RESPONSIVE_EMBED, 'div', true);
 				if(this.fake_image)
 				{
 					new_fake_image.replace(this.fake_image);
@@ -240,7 +241,7 @@
             CKEDITOR.dialog.add(DIALOG_EMBED_CMD, responsive_embed_dialog);
 
             editor.addCss(
-				'img.cke_embed' +
+				'img.' + CKE_RESPONSIVE_EMBED +
 				'{' +
 					'background-image: url(' + CKEDITOR.getUrl(this.path + 'icons/placeholder.png') + ');' +
 					'background-position: center center;' +
@@ -253,7 +254,7 @@
 			editor.on('doubleclick', function(evt)
             {
                 var element = evt.data.element;
-                if(element.is('img') && element.hasClass(EMBED_WRAPPER_CLS))
+                if(element.is('img') && element.hasClass(CKE_RESPONSIVE_EMBED))
                 {
                     evt.data.dialog = DIALOG_EMBED_CMD;
                 }
@@ -302,7 +303,7 @@
 						{
                             if(element.attributes.class.indexOf(EMBED_WRAPPER_CLS) > -1)
                             {
-                                return editor.createFakeParserElement(element, 'cke_embed', 'div', true);
+                                return editor.createFakeParserElement(element, CKE_RESPONSIVE_EMBED, 'div', true);
                             }
 						}
 					}
