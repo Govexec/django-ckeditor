@@ -282,7 +282,8 @@
 					{
 						div: function(element)
 						{
-                            if(element.attributes.class.indexOf(EMBED_WRAPPER_CLS) > -1)
+                            var class_attr = element.attributes.class;
+                            if(class_attr && class_attr.indexOf(EMBED_WRAPPER_CLS) > -1)
                             {
                                 return editor.createFakeParserElement(element, CKE_RESPONSIVE_EMBED, 'div', true);
                             }
