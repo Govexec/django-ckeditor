@@ -3,21 +3,102 @@
     var EMBED_WRAPPER_CLS = 'embed-wrapper';
     var CKE_RESPONSIVE_EMBED = 'cke-embed';
 
-    var ancestor_with_class = function(element, classname, include_element)
-    {
-        var closer_first = true;
-        var parents = element.getParents(closer_first);
-        if(include_element)
-        {
-            parents.unshift(element);
+    var add_listeners = function(dialog){
+        var source = dialog.getContentElement('main', 'source');
+        if(!dialog.on_change){
+            dialog.on_change = source.getInputElement().on('change', function() {
+                switch(source.getValue()){
+                case ResponsiveEmbed.GENERIC:
+                    break;
+                case ResponsiveEmbed.YOUTUBE:
+                    show_youtube(dialog);
+                    break;
+                case ResponsiveEmbed.BRIGHTCOVE:
+                    show_brightcove(dialog);
+                    break;
+                default:
+                    break;
+                }
+            });
         }
-        for(var i = 0; i < parents.length; ++i)
+    }
+
+    var handle_fake_swap = function(editor, dialog){
+        // Clear previously saved elements.
+        dialog.fake_image = null;
+        dialog.real_node = null;
+
+        var fake_image = dialog.getSelectedElement();
+
+        if(fake_image && fake_image.hasClass(CKE_RESPONSIVE_EMBED))
         {
-            var parent = parents[i];
-            if(parent.hasClass(classname))
+            var real_node = editor.restoreRealElement(fake_image);
+            if(real_node.hasClass(EMBED_WRAPPER_CLS))
             {
-                return parent;
+                dialog.fake_image = fake_image;
+                dialog.real_node = real_node;
+                dialog.setupContent(real_node);
+
+                var embed_container = real_node.getChild(0);
+                if(embed_container.hasClass(ResponsiveEmbed.BRIGHTCOVE))
+                {
+                    show_brightcove(dialog);
+                }
+                else
+                {
+                    show_youtube(dialog);
+                }
             }
+        }
+        else
+        {
+            show_youtube(dialog);
+        }
+    }
+
+    var show_youtube = function(dialog) {
+        var source = dialog.getContentElement('main', 'source');
+        var url = dialog.getContentElement('main', 'url');
+        var publish_code = dialog.getContentElement('main', 'publish_code');
+
+        publish_code.getElement().hide();
+        publish_code.setValue('');
+        publish_code.disable();
+
+        url.enable();
+        url.getElement().show();
+    }
+    var show_brightcove = function(dialog) {
+        var source = dialog.getContentElement('main', 'source');
+        var url = dialog.getContentElement('main', 'url');
+        var publish_code = dialog.getContentElement('main', 'publish_code');
+
+        url.getElement().hide();
+        url.setValue('');
+        url.disable();
+
+        publish_code.enable();
+        publish_code.getElement().show();
+    }
+
+    var construct_embed_from_ui = function(ui_element, real_element) {
+        if(ui_element.isEnabled())
+        {
+            var dialog = ui_element.getDialog();
+            var source = dialog.getContentElement('main', 'source');
+            var Embed;
+            switch(source.getValue()) {
+            case ResponsiveEmbed.YOUTUBE:
+                Embed = ResponsiveEmbed.youtubeEmbed;
+                break;
+            case ResponsiveEmbed.BRIGHTCOVE:
+                Embed = ResponsiveEmbed.brightCoveEmbed;
+                break;
+            default:
+                Embed = ResponsiveEmbed.genericEmbed;
+                break;
+            }
+            real_element.setHtml(Embed(ui_element.getValue()).generate().get_code());
         }
     }
 
@@ -38,7 +119,7 @@
                             labelLayout: 'horizontal',
                             items: [
                                 ['YouTube', ResponsiveEmbed.YOUTUBE],
-//                                ['BrightCove', ResponsiveEmbed.BRIGHTCOVE],
+                                ['BrightCove', ResponsiveEmbed.BRIGHTCOVE],
                             ],
                             'default': ResponsiveEmbed.YOUTUBE,
                             setup: function(element)
@@ -46,7 +127,7 @@
                                 var child = element.getChild(0);
                                 if(child)
                                 {
-                                    var items = [ResponsiveEmbed.YOUTUBE];//, 'embed-brightcove'];
+                                    var items = [ResponsiveEmbed.YOUTUBE, ResponsiveEmbed.BRIGHTCOVE];
                                     for(var i = 0; i < items.length; ++i)
                                     {
                                         var cls = items[i];
@@ -61,7 +142,7 @@
                             commit: function(element)
                             {
                                 var child = element.getChild(0);
-                                var items = [ResponsiveEmbed.YOUTUBE];//, 'embed-brightcove'];
+                                var items = [ResponsiveEmbed.YOUTUBE, ResponsiveEmbed.BRIGHTCOVE];
                                 for(var i = 0; i < items.length; ++i)
                                 {
                                     var cls = items[i];
@@ -110,55 +191,82 @@
                         {
                             id: 'url',
                             type: 'text',
-                            required: true,
-                            validate: CKEDITOR.dialog.validate.notEmpty("URL cannot be empty"),
                             label: 'URL',
                             labelLayout: 'horizontal',
                             setup: function(element)
-                            {
-                                var embed = element.getChild(0).getChild(0);
-                                this.setValue(embed.data('embed-src'));
-                            },
-                            commit: function(element)
                             {
                                 var embed_container = element.getChild(0);
                                 var embed = embed_container.getChild(0);
                                 if(embed_container.hasClass(ResponsiveEmbed.YOUTUBE))
                                 {
-                                    var r_embed = ResponsiveEmbed.youtubeEmbed(this.getValue());
-                                    var source = r_embed.source;
-
-                                    embed.data('embed-src', source);
-                                    embed.setAttribute('src', source);
-                                }
-                                else
-                                {
-                                    embed.data('embed-src', this.getValue());
-                                    embed.setAttribute('src', this.getValue());
+                                    this.setValue(embed.data('embed-src'));
                                 }
                             },
+                            commit: function(element)
+                            {
+                                construct_embed_from_ui(this, element);
+                            },
+                            validate: function(){
+                                var source = this.getDialog().getContentElement('main', 'source');
+                                if(source.getValue() == ResponsiveEmbed.YOUTUBE)
+                                {
+                                    var val = this.getValue();
+                                    if(!val)
+                                    {
+                                        alert('URL cannot be blank');
+                                        return false;
+                                    }
+                                }
+                                return true;
+                            }
+                        },
+                        {
+                            id: 'publish_code',
+                            type: 'textarea',
+                            label: 'Publishing Code',
+                            labelLayout: 'horizontal',
+                            setup: function(element)
+                            {
+                                var embed_container = element.getChild(0);
+                                if(embed_container.hasClass(ResponsiveEmbed.BRIGHTCOVE))
+                                {
+                                    var html = embed_container
+                                        .getHtml()
+                                        .replace(/<cke:/g, '<')
+                                        .replace(/<\/cke:/g, '</');
+
+                                    this.setValue(html);
+                                }
+                            },
+                            commit: function(element)
+                            {
+                                construct_embed_from_ui(this, element);
+                            },
+                            validate: function(){
+                                var source = this.getDialog().getContentElement('main', 'source');
+                                if(source.getValue() == ResponsiveEmbed.BRIGHTCOVE)
+                                {
+                                    var val = this.getValue();
+                                    if(!val)
+                                    {
+                                        alert('Publishing code cannot be blank');
+                                        return false;
+                                    }
+                                }
+                                return true;
+                            }
                         },
                     ]
                 }
             ],
+            onLoad: function()
+            {
+                show_youtube(this);
+                add_listeners(this);
+            },
             onShow: function()
             {
-				// Clear previously saved elements.
-				this.fake_image = null;
-                this.real_node = null;
-
-				var fake_image = this.getSelectedElement();
-
-				if(fake_image && fake_image.hasClass(CKE_RESPONSIVE_EMBED))
-                {
-                    var real_node = editor.restoreRealElement(fake_image);
-                    if(real_node.hasClass(EMBED_WRAPPER_CLS))
-                    {
-                        this.fake_image = fake_image;
-                        this.real_node = real_node;
-                        this.setupContent(real_node);
-                    }
-                }
+                handle_fake_swap(editor, this);
             },
             onOk: function()
             {
@@ -173,6 +281,9 @@
                     switch(source){
                     case ResponsiveEmbed.YOUTUBE:
                         var embed_code = ResponsiveEmbed.youtubeEmbed(url).generate().get_code();
+                        break;
+                    case ResponsiveEmbed.YOUTUBE:
+                        var embed_code = ResponsiveEmbed.brightCoveEmbed(url).generate().get_code();
                         break;
                     default:
                         var embed_code = ResponsiveEmbed.genericEmbed(url).generate().get_code();
