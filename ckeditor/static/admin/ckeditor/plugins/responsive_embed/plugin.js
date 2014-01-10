@@ -282,7 +282,7 @@
                     case ResponsiveEmbed.YOUTUBE:
                         var embed_code = ResponsiveEmbed.youtubeEmbed(url).generate().get_code();
                         break;
-                    case ResponsiveEmbed.YOUTUBE:
+                    case ResponsiveEmbed.BRIGHTCOVE:
                         var embed_code = ResponsiveEmbed.brightCoveEmbed(url).generate().get_code();
                         break;
                     default:
