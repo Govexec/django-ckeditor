@@ -275,15 +275,17 @@
                 {
                     var dialog = this;
                     var source = dialog.getValueOf('main', 'source');
-                    var url = dialog.getValueOf('main', 'url');
                     var size = dialog.getValueOf('main', 'size');
+
+                    var url = dialog.getValueOf('main', 'url');
+                    var publish_code = dialog.getValueOf('main', 'publish_code');
 
                     switch(source){
                     case ResponsiveEmbed.YOUTUBE:
                         var embed_code = ResponsiveEmbed.youtubeEmbed(url).generate().get_code();
                         break;
                     case ResponsiveEmbed.BRIGHTCOVE:
-                        var embed_code = ResponsiveEmbed.brightCoveEmbed(url).generate().get_code();
+                        var embed_code = ResponsiveEmbed.brightCoveEmbed(publish_code).generate().get_code();
                         break;
                     default:
                         var embed_code = ResponsiveEmbed.genericEmbed(url).generate().get_code();
