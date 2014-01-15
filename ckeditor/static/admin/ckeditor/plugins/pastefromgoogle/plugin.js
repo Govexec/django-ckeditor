@@ -76,7 +76,7 @@ Copyright (c) 2013 Llewellyn Hinkes-Jones +(JASON)   borrowed heavily from paste
 
                     var cleanedResult = "";
 
-                    whitelist = {'span': [], 'a': ['href'], 'p': [] };
+                    whitelist = {'span': [], 'a': ['href'], 'p': [], 'li': [], 'ul': [], 'ol': [] };
                     changeToPList = {'h1': [], 'h2': [], 'h3': [], 'h4': [], 'h5': [] };
 
                     function trimAttributes(node, allowedAttrs) {
