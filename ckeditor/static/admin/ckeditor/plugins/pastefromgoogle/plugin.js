@@ -70,9 +70,11 @@ Copyright (c) 2013 Llewellyn Hinkes-Jones +(JASON)   borrowed heavily from paste
 
                 // Google Doc format sniffing.
                 if ( ( googleHtml = data[ 'html' ] )
-                     && ( forceFromGoogle || ( /((strong|b|span) id="docs-internal-guid(.*))/ ).test( googleHtml ) ) )
+                     && ( forceFromGoogle || ( /((.*)id="docs-internal-guid(.*))/ ).test( googleHtml ) ) )
                 {
-                    result = googleHtml;
+//                    result = googleHtml;
+
+                    result = '<div>'+googleHtml+'</div>';
 
                     var cleanedResult = "";
 
@@ -86,36 +88,28 @@ Copyright (c) 2013 Llewellyn Hinkes-Jones +(JASON)   borrowed heavily from paste
                                 $(node).removeAttr(attrName);
                             }
                             $(node).removeAttr('style');
+                            $(node).removeAttr('dir');
                         });
                     }
-                    function sanitize(html, whitelist) {
+                    function sanitize(html, whitelist, changeToPList) {
                         var output = $('<div>'+html+'</div>');
+
                         output.find('*').each(function() {
                             var allowedAttrs = whitelist[this.nodeName.toLowerCase()];
-                            var changeToParagraph = changeToPList[this.nodeName.toLowerCase()];
                             if(!allowedAttrs) {
-                                if($(this).is(":empty")) {
-                                    $(this).remove();
-                                } else {
-                                    if(changeToParagraph){
-                                        $(this).wrapInner("<p></p>")
-                                    }
+                                if($(this).is(":empty")) { $(this).remove(); }
+                                else {
+                                    if(changeToPList[this.nodeName.toLowerCase()]){ $(this).wrapInner("<p></p>") }
                                     $(this).contents().unwrap();
                                 }
                             } else {
                                 if(this.nodeName.toLowerCase() == 'span') {
-                                    if($(this).is(":empty")) {
-                                        $(this).remove();
-                                    } else {
+                                    if($(this).is(":empty")) { $(this).remove(); }
+                                    else {
                                         italic = ($(this).css("font-style") == "italic") ? true : false;
                                         bold = ($(this).css("font-weight") == "bold") ? true : false;
-                                        /* TODO: CAN POTENTIALLY ADD SUPPORT FOR UNDERLINED TEXT HERE */
-                                        if(italic) {
-                                            $(this).wrapInner("<em></em>");
-                                        }
-                                        if(bold){
-                                            $(this).wrapInner("<strong></strong>");
-                                        }
+                                        if(italic) {$(this).wrapInner("<em></em>");}
+                                        if(bold){$(this).wrapInner("<strong></strong>");}
                                         $(this).contents().unwrap();
                                     }
                                 }
@@ -125,7 +119,7 @@ Copyright (c) 2013 Llewellyn Hinkes-Jones +(JASON)   borrowed heavily from paste
                         return output.html();
                     }
 
-                    cleanedResult = sanitize($(result).html(), whitelist);
+                    cleanedResult = sanitize($(result).html(), whitelist, changeToPList);
 
                     data[ 'html' ] = cleanedResult;
                 }
