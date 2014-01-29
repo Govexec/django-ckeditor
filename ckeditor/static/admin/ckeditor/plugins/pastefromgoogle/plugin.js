@@ -72,8 +72,6 @@ Copyright (c) 2013 Llewellyn Hinkes-Jones +(JASON)   borrowed heavily from paste
                 if ( ( googleHtml = data[ 'html' ] )
                      && ( forceFromGoogle || ( /((.*)id="docs-internal-guid(.*))/ ).test( googleHtml ) ) )
                 {
-//                    result = googleHtml;
-
                     result = '<div>'+googleHtml+'</div>';
 
                     var cleanedResult = "";
