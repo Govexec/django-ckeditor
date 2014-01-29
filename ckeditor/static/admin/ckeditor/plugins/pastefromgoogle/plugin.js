@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2013 Llewellyn Hinkes-Jones +(JASON)   borrowed heavily from pastefromgoogle by Frederico Knabben.
+Copyright (c) 2013 Llewellyn Hinkes-Jones borrowed heavily from pastefromgoogle by Frederico Knabben. 
 */
 (function()
 {
@@ -126,5 +126,5 @@ Copyright (c) 2013 Llewellyn Hinkes-Jones +(JASON)   borrowed heavily from paste
 
         requires : [ 'clipboard' ]
     });
-
 })();
+
