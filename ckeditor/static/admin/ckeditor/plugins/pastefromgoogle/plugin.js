@@ -91,21 +91,25 @@ Copyright (c) 2013 Llewellyn Hinkes-Jones borrowed heavily from pastefromgoogle 
                     }
                     function sanitize(html, whitelist, changeToPList) {
                         var output = $('<div>'+html+'</div>');
-
                         output.find('*').each(function() {
                             var allowedAttrs = whitelist[this.nodeName.toLowerCase()];
                             if(!allowedAttrs) {
                                 if($(this).is(":empty")) { $(this).remove(); }
                                 else {
-                                    if(changeToPList[this.nodeName.toLowerCase()]){ $(this).wrapInner("<p></p>") }
+                                    if(changeToPList[this.nodeName.toLowerCase()] && $(this).parent().get(0).nodeName.toLowerCase() != 'li'){
+                                        $(this).wrapInner("<p></p>");
+                                    }
                                     $(this).contents().unwrap();
                                 }
                             } else {
-                                if(this.nodeName.toLowerCase() == 'span') {
+                                if(this.nodeName.toLowerCase() == 'p' && $(this).parent().get(0).nodeName.toLowerCase() == 'li') {
+                                    $(this).contents().unwrap();
+                                }
+                                else if(this.nodeName.toLowerCase() == 'span') {
                                     if($(this).is(":empty")) { $(this).remove(); }
                                     else {
                                         italic = ($(this).css("font-style") == "italic") ? true : false;
-                                        bold = ($(this).css("font-weight") == "bold") ? true : false;
+                                        bold = ($(this).css("font-weight") == "bold" || $(this).css("font-weight") == 700) ? true : false;
                                         if(italic) {$(this).wrapInner("<em></em>");}
                                         if(bold){$(this).wrapInner("<strong></strong>");}
                                         $(this).contents().unwrap();
