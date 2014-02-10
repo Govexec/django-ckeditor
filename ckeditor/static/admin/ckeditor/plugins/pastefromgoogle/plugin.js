@@ -77,7 +77,7 @@ Copyright (c) 2013 Llewellyn Hinkes-Jones borrowed heavily from pastefromgoogle 
                     var cleanedResult = "";
 
                     whitelist = {'span': [], 'a': ['href'], 'p': [], 'li': [], 'ul': [], 'ol': [] };
-                    changeToPList = {'h1': [], 'h2': [], 'h3': [], 'h4': [], 'h5': [] };
+                    changeToPList = {'h1': [], 'h2': [], 'h3': [], 'h4': [], 'h5': [], 'div': [] };
 
                     function trimAttributes(node, allowedAttrs) {
                         $.each(node.attributes, function() {
