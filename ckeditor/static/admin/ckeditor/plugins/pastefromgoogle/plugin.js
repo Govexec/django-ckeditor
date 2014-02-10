@@ -74,6 +74,8 @@ Copyright (c) 2013 Llewellyn Hinkes-Jones borrowed heavily from pastefromgoogle 
                 {
                     result = '<div>'+googleHtml+'</div>';
 
+                    console.log(result);
+
                     var cleanedResult = "";
 
                     whitelist = {'span': [], 'a': ['href'], 'p': [], 'li': [], 'ul': [], 'ol': [] };
@@ -96,7 +98,8 @@ Copyright (c) 2013 Llewellyn Hinkes-Jones borrowed heavily from pastefromgoogle 
                             if(!allowedAttrs) {
                                 if($(this).is(":empty")) { $(this).remove(); }
                                 else {
-                                    if(changeToPList[this.nodeName.toLowerCase()] && $(this).parent().get(0).nodeName.toLowerCase() != 'li'){
+                                    if(changeToPList[this.nodeName.toLowerCase()] && $(this).parent().get(0).nodeName.toLowerCase() != 'li'
+                                        && ($(this).children().length > 0 && $(this).children().get(0).nodeName.toLowerCase() != 'br')){
                                         $(this).wrapInner("<p></p>");
                                     }
                                     $(this).contents().unwrap();
