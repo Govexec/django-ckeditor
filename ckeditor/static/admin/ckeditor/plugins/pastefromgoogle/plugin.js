@@ -74,12 +74,10 @@ Copyright (c) 2013 Llewellyn Hinkes-Jones borrowed heavily from pastefromgoogle 
                 {
                     result = '<div>'+googleHtml+'</div>';
 
-                    console.log(result);
-
                     var cleanedResult = "";
 
                     whitelist = {'span': [], 'a': ['href'], 'p': [], 'li': [], 'ul': [], 'ol': [] };
-                    changeToPList = {'h1': [], 'h2': [], 'h3': [], 'h4': [], 'h5': [], 'div': [] };
+                    changeToPList = {'h1': [], 'h2': [], 'h3': [], 'h4': [], 'h5': [] };
 
                     function trimAttributes(node, allowedAttrs) {
                         $.each(node.attributes, function() {
@@ -97,9 +95,16 @@ Copyright (c) 2013 Llewellyn Hinkes-Jones borrowed heavily from pastefromgoogle 
                             var allowedAttrs = whitelist[this.nodeName.toLowerCase()];
                             if(!allowedAttrs) {
                                 if($(this).is(":empty")) { $(this).remove(); }
+                                else if (this.nodeName.toLowerCase() == 'b') {
+                                    $(this).wrapInner("<strong></strong>");
+                                    $(this).contents().unwrap();
+                                }
+                                else if (this.nodeName.toLowerCase() == 'u') {
+                                    $(this).wrapInner("<em></em>");
+                                    $(this).contents().unwrap();
+                                }
                                 else {
-                                    if(changeToPList[this.nodeName.toLowerCase()] && $(this).parent().get(0).nodeName.toLowerCase() != 'li'
-                                        && ($(this).children().length > 0 && $(this).children().get(0).nodeName.toLowerCase() != 'br')){
+                                    if(changeToPList[this.nodeName.toLowerCase()] && $(this).parent().get(0).nodeName.toLowerCase() != 'li'){
                                         $(this).wrapInner("<p></p>");
                                     }
                                     $(this).contents().unwrap();
