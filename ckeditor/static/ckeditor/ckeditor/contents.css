@@ -121,3 +121,11 @@ figure figcaption
 	text-align: center;
 	display: block; /* For IE8 */
 }
+
+aside {
+	float:left;
+	width:200px;
+	padding: 20px;
+	background-color: #E9E2E2;
+	margin: 15px 15px 15px 0;
+}
