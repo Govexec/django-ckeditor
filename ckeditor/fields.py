@@ -18,7 +18,7 @@ class RichTextField(models.TextField):
         return super(RichTextField, self).formfield(**defaults)
 
 
-class RichTextFormField(forms.fields.Field):
+class RichTextFormField(forms.CharField):
     def __init__(self, config_name='default', *args, **kwargs):
         kwargs.update({'widget': CKEditorWidget(config_name=config_name)})
         super(RichTextFormField, self).__init__(*args, **kwargs)
