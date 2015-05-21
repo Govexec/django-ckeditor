@@ -53,7 +53,7 @@ def configs(request):
         'timestamp': ck_settings.TIMESTAMP,
         'merged_configs': utils.pretty_json_encode(merged_configs),
         'jquery_override_val': utils.json_encode(ck_settings.JQUERY_OVERRIDE_VAL),
-    }), mimetype="application/x-javascript")
+    }), content_type="application/x-javascript")
 
 
 @csrf_exempt
