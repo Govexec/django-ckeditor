@@ -1,12 +1,14 @@
+import django
+from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
-from django.shortcuts import render_to_response
-from django.template import RequestContext
+from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 
 from . import utils
 from . import settings as ck_settings
 
 
+@login_required
 @csrf_exempt
 def upload(request):
     """
@@ -36,26 +38,35 @@ def upload(request):
     </script>""" % (request.GET['CKEditorFuncNum'], url))
 
 
+@login_required
 def browse(request):
-    return render_to_response('browse.html', RequestContext(request, {
+    return render(request, 'browse.html', {
         'images': utils.get_image_browse_urls(request.user),
-    }))
+    })
 
 
+@login_required
 def configs(request):
     merged_configs = {}
     if ck_settings.CONFIGS is not None:
         for config_name, config in ck_settings.CONFIGS.iteritems():
             merged_configs[config_name] = utils.validate_config(config_name)
 
-    return render_to_response('ckeditor/configs.js', RequestContext(request, {
+    render_kwargs = {}
+    if django.VERSION > (1, 7):
+        render_kwargs['content_type'] = 'application/x-javascript'
+    else:
+        render_kwargs['mimetype'] = 'application/x-javascript'
+
+    return render(request, 'ckeditor/configs.js', dict({
         'debug': ck_settings.CKEDITOR_DEBUG,
         'timestamp': ck_settings.TIMESTAMP,
         'merged_configs': utils.pretty_json_encode(merged_configs),
         'jquery_override_val': utils.json_encode(ck_settings.JQUERY_OVERRIDE_VAL),
-    }), mimetype="application/x-javascript")
+    }, **render_kwargs))
 
 
+@login_required
 @csrf_exempt
 def fb_upload(request):
     """
