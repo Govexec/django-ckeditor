@@ -2,8 +2,10 @@ import re
 from django.db import models
 from django import forms
 
-from ckeditor.widgets import CKEditorWidget
+from ckeditor.utils.fix_urls import fix_urls
 from ckeditor.utils.image_resize import resize_images
+from ckeditor.widgets import CKEditorWidget
+
 
 CONTROL_CHARACTERS_REGEX = re.compile(r'[\x00-\x08\x10\x0B\x0C\x0E-\x1F\x7F]')
 
@@ -44,6 +46,11 @@ class RichTextFormField(forms.CharField):
         })
         self.request = kwargs.pop('request', None)
         super(RichTextFormField, self).__init__(*args, **kwargs)
+
+    def clean(self, value):
+        value = super(RichTextFormField, self).clean(value)
+        value = fix_urls(value)
+        return value
 
     def to_python(self, value):
         value = super(RichTextFormField, self).to_python(value)
